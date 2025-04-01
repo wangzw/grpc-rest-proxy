@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+
+option java_multiple_files = true;
+option java_package = "wang.zhanwei.example.proto";
+option java_outer_classname = "Example";
+
+message Empty {}
+
+message GetMessageRequest1 {
+  string name = 1; // Mapped to URL path.
+}
+
+message GetMessageRequest2 {
+  message SubMessage { string subfield = 1; }
+  string message_id = 1; // Mapped to URL path.
+  int64 revision = 2;    // Mapped to URL query parameter `revision`.
+  SubMessage sub = 3;    // Mapped to URL query parameter `sub.subfield`.
+}
+
+message GetMessageRequest3 {
+  string message_id = 1;
+  string user_id = 2;
+}
+
+message Message1 {
+  string text = 1; // The resource content.
+}
+
+message Message2 {
+  string message_id = 1;
+  string text = 2;
+}
+
+message UpdateMessageRequest {
+  string message_id = 1; // mapped to the URL
+  Message1 message = 2;  // mapped to the body
+}
+
+service ExampleService {
+
+  rpc InternalMessage(Empty) returns (Empty) {}
+
+  rpc EmptyMessage(Empty) returns (Empty) {
+    option (google.api.http) = {
+      get : "/v1/empty"
+    };
+  }
+
+  // HTTP | gRPC
+  // -----|-----
+  // `GET /v2/messages/123456`  | `GetMessage1(name: "messages/123456")`
+
+  rpc GetMessage1(GetMessageRequest1) returns (Message1) {
+    option (google.api.http) = {
+      get : "/v2/{name=messages/*}"
+    };
+  }
+
+  // clang-format off
+  // HTTP | gRPC
+  // -----|-----
+  // `GET /v3/messages/123456?revision=2&sub.subfield=foo` |
+  // `GetMessage2(message_id: "123456" revision: 2 sub: SubMessage(subfield:"foo"))`
+  // clang-format on
+
+  rpc GetMessage2(GetMessageRequest2) returns (Message1) {
+    option (google.api.http) = {
+      get : "/v3/messages/{message_id}"
+    };
+  }
+
+  // HTTP | gRPC
+  // -----|-----
+  // `PATCH /v4/messages/123456 { "text": "Hi!" }` |
+  // `UpdateMessage1(message_id: "123456" message { text: "Hi!" })`
+
+  rpc UpdateMessage1(UpdateMessageRequest) returns (Message1) {
+    option (google.api.http) = {
+      patch : "/v4/messages/{message_id}"
+      body : "message"
+    };
+  }
+
+  // clang-format off
+  // HTTP | gRPC
+  // -----|-----
+  // `PATCH /v5/messages/123456 { "text": "Hi!" }` | `UpdateMessage2(message_id:"123456" text: "Hi!")`
+  // clang-format on
+
+  rpc UpdateMessage2(Message2) returns (Message2) {
+    option (google.api.http) = {
+      patch : "/v5/messages/{message_id}"
+      body : "*"
+    };
+  }
+
+  // clang-format off
+  // HTTP | gRPC
+  // -----|-----
+  // `GET /v6/messages/123456` | `GetMessage3(message_id: "123456")`
+  // `GET /v6/users/me/messages/123456` | `GetMessage(user_id: "me" message_id:"123456")`
+  // clang-format off
+
+  rpc GetMessage3(GetMessageRequest3) returns (Message2) {
+    option (google.api.http) = {
+      get : "/v6/messages/{message_id}"
+      additional_bindings {get : "/v6/users/{user_id}/messages/{message_id}"}
+    };
+  }
+}
