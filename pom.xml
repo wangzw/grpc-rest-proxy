@@ -28,4 +28,11 @@
         <module>grpc-rest-proxy-example</module>
     </modules>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/wangzw/grpc-rest-proxy</url>
+        </repository>
+    </distributionManagement>
 </project>
