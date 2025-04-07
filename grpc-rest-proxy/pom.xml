@@ -11,7 +11,32 @@
 
     <artifactId>grpc-rest-proxy</artifactId>
     <version>2.0.0</version>
+
     <name>grpc-rest-proxy</name>
+    <description>A proxy server that translates gRPC calls to REST and vice versa.</description>
+    <url>https://github.com/wangzw/grpc-rest-proxy</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Zhanwei Wang</name>
+            <email>me@zhanwei.wang</email>
+            <organization>Zhanwei Wang</organization>
+            <organizationUrl>https://github.com/wangzw/</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/wangzw/grpc-rest-proxy.git</connection>
+        <developerConnection>scm:git:git@github.com:wangzw/grpc-rest-proxy.git</developerConnection>
+        <url>https://github.com/wangzw/grpc-rest-proxy</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -84,12 +109,48 @@
                     <execution>
                         <id>attach-sources</id>
                         <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
                             <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <ignorePublishedComponents>true</ignorePublishedComponents>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
